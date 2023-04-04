@@ -1,3 +1,5 @@
+from uuid import uuid4, UUID
+
 from utils.OtpInfo import OtpInfo
 from urllib.parse import urlparse, unquote, parse_qs
 
@@ -6,7 +8,7 @@ from utils.TotpInfo import TotpInfo
 
 class VaultEntry:
 
-    def __init__(self, name: str = "", issuer: str = "", info: OtpInfo = OtpInfo(""), group: str = "",
+    def __init__(self, uuid: UUID = uuid4(), name: str = "", issuer: str = "", info: OtpInfo = OtpInfo(""), group: str = "",
                  usage_count: int = -1, note: str = ""):
         self._name = name
         self._issuer = issuer
@@ -56,9 +58,28 @@ class VaultEntry:
     def get_otp(self):
         return self._info.get_otp()
 
+    @staticmethod
+    def from_json(json_obj: dict):
+        if not json_obj.get("uuid"):
+            entry_uuid = uuid4()
+        else:
+            entry_uuid = UUID(json_obj.get("uuid"))
+
+        otp_info = OtpInfo.from_json(json_obj.get("type"), json_obj.get("info"))
+        return VaultEntry(
+            entry_uuid,
+            json_obj.get("name"),
+            json_obj.get("issuer"),
+            otp_info,
+            json_obj.get("group"),
+            note=json_obj.get("note")
+        )
+        # TODO complete
+
 
 if __name__ == "__main__":
     entry = VaultEntry.from_url(
-        "otpauth://totp/test.com%3Atest.com_du%40pont.fr?period=30&digits=6&algorithm=SHA1&secret=3PQ4AYKC3EG3DFEGRE2JGSWEVS3XO57Q&issuer=test.com")
+        "otpauth://totp/test.com%3Atest.com_du%40pont.fr?period=30&digits=6&algorithm=SHA1&secret"
+        "=3PQ4AYKC3EG3DFEGRE2JGSWEVS3XO57Q&issuer=test.com")
 
     print(entry.get_otp())
