@@ -7,9 +7,12 @@ class Vault:
 
         self.entries = entries
 
-    def from_json(self, json_obj):
+    @staticmethod
+    def from_json(json_obj):
         # TODO
+        print("Hey")
         print(json_obj)
+        print("Bye")
 
     def to_json(self):
         # TODO

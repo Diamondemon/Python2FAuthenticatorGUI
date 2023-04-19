@@ -8,7 +8,7 @@ class VaultManager:
 
     def __init__(self):
         self._vault_file = None
-        self._repo: VaultRepository = None
+        self._repo: VaultRepository | None = None
 
     def init_new(self, creds: VaultFileCredentials):
         self._vault_file = None
@@ -17,7 +17,7 @@ class VaultManager:
 
         return self._repo
 
-    def load_from(self, vault_file: VaultFile, creds: VaultFileCredentials):
+    def load_from(self, vault_file: VaultFile, creds: VaultFileCredentials | None):
         self._vault_file = None
         self._repo = VaultRepository.from_vault_file(vault_file, creds)
 
@@ -28,8 +28,8 @@ class VaultManager:
 
         if self.is_vault_loaded():
             return self._repo
-        else:
-            return self.load_from(self._vault_file, creds)
+
+        return self.load_from(self._vault_file, creds)
 
     def unlock(self, creds: VaultFileCredentials):
         return self.load_from(self._vault_file, creds)
@@ -43,10 +43,12 @@ class VaultManager:
 
     def load_vault_file(self):
         self._vault_file = VaultRepository.read_vault_file()
-        # TODO complete
+
+        if (self._vault_file is not None) and not self._vault_file.is_encrypted():
+            self.load_from(self._vault_file, None)
 
     def is_vault_loaded(self):
         return self._repo is not None
 
-    def is_vaultfile_loaded(self):
+    def is_vault_file_loaded(self):
         return self._vault_file is not None

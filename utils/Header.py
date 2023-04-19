@@ -5,7 +5,7 @@ from utils.Slots.SlotList import SlotList
 class Header:
 
     def __init__(self, slots: SlotList = None, params: CryptoParams = None):
-        self.slots = slots
+        self.slots: SlotList | None = slots
         self.params = params
 
     def is_empty(self):
@@ -29,7 +29,11 @@ class Header:
         if json_obj is None:
             return Header()
 
-        if json_obj["version"] != 1:
+        if json_obj.get("version", 1) != 1:
             raise ValueError("Version of the file is wrong! Cannot open it.")
 
         return Header(SlotList.from_json(json_obj.get("slots", [])), CryptoParams.from_json(json_obj["params"]))
+
+    def __str__(self):
+        return {"slots": self.slots, "params": self.params}.__str__()
+

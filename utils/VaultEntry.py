@@ -8,7 +8,8 @@ from utils.TotpInfo import TotpInfo
 
 class VaultEntry:
 
-    def __init__(self, uuid: UUID = uuid4(), name: str = "", issuer: str = "", info: OtpInfo = OtpInfo(""), group: str = "",
+    def __init__(self, uuid: UUID = uuid4(), name: str = "", issuer: str = "",
+                 info: OtpInfo = OtpInfo(""), group: str = "",
                  usage_count: int = -1, note: str = ""):
         self._name = name
         self._issuer = issuer

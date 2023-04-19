@@ -13,12 +13,12 @@ class Slot:
         self.encrypted_master_key_params = params
 
     def set_key(self, master_key: bytes, cipher):
-        res = CryptoUtils.encrypt(bytes(""), master_key, cipher)
+        res = CryptoUtils.encrypt(bytes(), master_key, cipher)
         self.encrypted_master_key = res.data
         self.encrypted_master_key_params = res.params
 
     def get_key(self, cipher):
-        res = CryptoUtils.decrypt(bytes(""), self.encrypted_master_key, self.encrypted_master_key_params, cipher)
+        res = CryptoUtils.decrypt(bytes(), self.encrypted_master_key, self.encrypted_master_key_params, cipher)
         return res.data
 
     @staticmethod
@@ -38,7 +38,7 @@ class Slot:
         key_params = CryptoParams.from_json(json_obj["key_params"])
 
         if json_obj["type"] == 1:
-            import PasswordSlot
+            import utils.Slots.PasswordSlot as PasswordSlot
             scrypt_params = SCryptParams(json_obj["n"], json_obj["r"], json_obj["p"], Hex.decode(json_obj["salt"]))
             repaired = json_obj.get("repaired", False)
             is_backup = json_obj.get("is_backup", False)

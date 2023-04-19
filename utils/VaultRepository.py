@@ -2,6 +2,7 @@ from utils.Vault import Vault
 from utils.VaultFile import VaultFile
 from utils.VaultFileCredentials import VaultFileCredentials
 
+
 class VaultRepository:
     FILENAME = "2fa.json"
     FILEPATH = "./"
@@ -52,5 +53,5 @@ class VaultRepository:
         return VaultFile.from_file(VaultRepository.FILEPATH + VaultRepository.FILENAME)
 
     @staticmethod
-    def from_file_import(filename):
+    def from_file_import(filename: str) -> VaultFile:
         return VaultFile.from_file(filename)

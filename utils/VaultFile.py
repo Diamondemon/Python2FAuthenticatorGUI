@@ -7,11 +7,11 @@ from utils.VaultFileCredentials import VaultFileCredentials
 
 class VaultFile:
 
-    def __init__(self, header: Header, content):
+    def __init__(self, header: Header = None, content=None):
         self.header = header
         self.content = content
 
-    def get_content(self, creds: VaultFileCredentials):
+    def get_content(self, creds: VaultFileCredentials = None):
         if creds is None:
             return self.content
 
@@ -19,15 +19,15 @@ class VaultFile:
         result = creds.decrypt(full, self.header.params)
         return json.loads(result.data.decode())
 
-    def set_content(self, json_obj, creds: VaultFileCredentials):
+    def set_content(self, json_obj, creds: VaultFileCredentials = None):
         if creds is None:
             self.content = json_obj
             self.header = Header()
         else:
             string = json.dumps(json_obj)
-            vaultbytes = string.encode()
+            vault_bytes = string.encode()
 
-            result = creds.encrypt(vaultbytes)
+            result = creds.encrypt(vault_bytes)
             self.content = base64.b64encode(result.data)
             self.header = Header(creds.slots, result.params)
 
@@ -48,4 +48,4 @@ class VaultFile:
 
     def to_file(self, filename):
         with open(filename, "w") as file:
-            json.dump(file, self.to_json())
+            json.dump(self.to_json(), file)
