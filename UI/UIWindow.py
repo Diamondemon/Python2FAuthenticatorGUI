@@ -47,7 +47,6 @@ class UIWindow(QMainWindow):
 
     @Slot()
     def decrypt_task(self):
-        print("pouf")
         passw = self.authPage.passEntry.text()
         print(passw)
         for slot in self.vaultFile.header.slots:

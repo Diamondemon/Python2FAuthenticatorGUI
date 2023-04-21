@@ -10,9 +10,7 @@ class Vault:
     @staticmethod
     def from_json(json_obj):
         # TODO
-        print("Hey")
         print(json_obj)
-        print("Bye")
 
     def to_json(self):
         # TODO

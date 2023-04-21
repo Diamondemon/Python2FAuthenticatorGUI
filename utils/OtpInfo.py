@@ -10,7 +10,7 @@ class OtpInfo:
         self.digits = digits
 
     def get_otp(self):
-        print("I'm called")
+        raise NotImplementedError("Base OtpInfo.get_otp method should not be called")
 
     @staticmethod
     def from_json(otp_type: str, json_obj: dict):
