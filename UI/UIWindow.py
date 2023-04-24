@@ -20,7 +20,7 @@ class UIWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setWindowTitle("2F Authenticator")
-        #self.setMinimumSize(QSize(720, 405))
+        self.setMinimumSize(QSize(720, 405))
 
         self.manager = VaultManager()
         self.vaultFile: VaultFile | None = None
