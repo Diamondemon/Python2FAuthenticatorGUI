@@ -1,5 +1,3 @@
-import base64
-
 
 class OtpInfo:
 
