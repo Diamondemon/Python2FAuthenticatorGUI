@@ -9,7 +9,7 @@ class OtpInfo:
         self.algorithm = algorithm
         self.digits = digits
 
-    def get_otp(self):
+    def get_otp(self) -> str:
         raise NotImplementedError("Base OtpInfo.get_otp method should not be called")
 
     @staticmethod
