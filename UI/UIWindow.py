@@ -3,6 +3,8 @@ from PySide6.QtGui import QKeySequence, QAction
 from PySide6.QtWidgets import (QMainWindow, QFileDialog)
 from os import path
 
+from UI.EntriesPage import EntriesPage
+from UI.EntryWidget import EntryWidget
 from UI.UIMenuBar import UIMenuBar
 
 from utils.VaultManager import VaultManager
@@ -18,10 +20,11 @@ class UIWindow(QMainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
         self.setWindowTitle("2F Authenticator")
-        self.setMinimumSize(QSize(720, 405))
+        #self.setMinimumSize(QSize(720, 405))
 
         self.manager = VaultManager()
         self.vaultFile: VaultFile | None = None
+        self.repo: VaultRepository | None = None
 
         self.uiMenuBar = UIMenuBar(self)
         self.uiMenuBar.addFileAction(self.tr("Importer"), self.import_file)
@@ -48,9 +51,7 @@ class UIWindow(QMainWindow):
     @Slot()
     def decrypt_task(self):
         passw = self.authPage.passEntry.text()
-        print(passw)
         for slot in self.vaultFile.header.slots:
-            print(slot)
             if type(self.vaultFile.header.slots[slot]) == PasswordSlot:
                 passSlot: PasswordSlot = self.vaultFile.header.slots[slot]
                 key = passSlot.derive_key(passw)
@@ -61,7 +62,8 @@ class UIWindow(QMainWindow):
                     return
                 self.authPage.goodPass()
                 creds = VaultFileCredentials(masterKey, self.vaultFile.header.slots)
-                repo = VaultRepository.from_vault_file(self.vaultFile, creds)
+                self.repo = VaultRepository.from_vault_file(self.vaultFile, creds)
+                self.setCentralWidget(EntriesPage(self, self.repo))
 
     @Slot()
     def quit_window(self):

@@ -9,8 +9,15 @@ class Vault:
 
     @staticmethod
     def from_json(json_obj):
-        # TODO
-        print(json_obj)
+        entries: list[VaultEntry] = []
+        if json_obj["version"] != 2:
+            raise ValueError(f"Incompatible Vault Version {json_obj['version']}")
+        for entry in json_obj["entries"]:
+            try:
+                entries.append(VaultEntry.from_json(entry))
+            except ValueError:
+                pass
+        return Vault(entries)
 
     def to_json(self):
         # TODO

@@ -11,6 +11,7 @@ class VaultEntry:
     def __init__(self, uuid: UUID = uuid4(), name: str = "", issuer: str = "",
                  info: OtpInfo | TotpInfo = OtpInfo(""), group: str = "",
                  usage_count: int = -1, note: str = ""):
+        self.uuid = uuid
         self._name = name
         self._issuer = issuer
         self._group = group
@@ -91,7 +92,6 @@ class VaultEntry:
             return self._info.period
         else:
             return 0
-
 
 
 if __name__ == "__main__":
