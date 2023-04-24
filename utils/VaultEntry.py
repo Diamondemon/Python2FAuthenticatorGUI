@@ -9,7 +9,7 @@ from utils.TotpInfo import TotpInfo
 class VaultEntry:
 
     def __init__(self, uuid: UUID = uuid4(), name: str = "", issuer: str = "",
-                 info: OtpInfo = OtpInfo(""), group: str = "",
+                 info: OtpInfo | TotpInfo = OtpInfo(""), group: str = "",
                  usage_count: int = -1, note: str = ""):
         self._name = name
         self._issuer = issuer
@@ -54,7 +54,7 @@ class VaultEntry:
 
         info = TotpInfo(query["secret"], query["algorithm"], query["digits"], query["period"])
 
-        return VaultEntry(name, issuer, info)
+        return VaultEntry(name=name, issuer=issuer, info=info)
 
     def get_otp(self):
         return self._info.get_otp()
@@ -76,6 +76,22 @@ class VaultEntry:
             note=json_obj.get("note")
         )
         # TODO complete
+
+    @property
+    def name(self):
+        return self._name
+
+    @property
+    def issuer(self):
+        return self._issuer
+
+    @property
+    def period(self):
+        if type(self._info) == TotpInfo:
+            return self._info.period
+        else:
+            return 0
+
 
 
 if __name__ == "__main__":
