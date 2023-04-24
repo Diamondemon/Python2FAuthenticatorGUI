@@ -10,5 +10,4 @@ uiFiles = $(patsubst $(UIDIR)/%.ui,ui_%.py,$(wildcard **/*.ui))
 ui: $(uiFiles)
 
 ui_%.py: $(UIDIR)/%.ui
-	pwd
 	$(CONDA_PREFIX)/bin/pyside6-uic $< -o $(UIDIR)/$@
