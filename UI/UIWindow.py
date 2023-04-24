@@ -63,6 +63,7 @@ class UIWindow(QMainWindow):
                 self.authPage.goodPass()
                 creds = VaultFileCredentials(masterKey, self.vaultFile.header.slots)
                 self.repo = VaultRepository.from_vault_file(self.vaultFile, creds)
+                self.authPage = self.takeCentralWidget()
                 self.setCentralWidget(EntriesPage(self, self.repo))
 
     @Slot()
