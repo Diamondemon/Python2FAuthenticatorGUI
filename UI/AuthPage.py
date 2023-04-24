@@ -13,19 +13,11 @@ class AuthPage(QWidget):
 
         self.passEntry = self.ui.pass_entry
         self.ui.pass_entry.setEchoMode(QLineEdit.EchoMode.Password)
-        #self.grid.addWidget(self.passEntry, 0, 0, 1, 2)
 
-        #self.viewPass = QPushButton(self.tr("Voir"))
         self.connect(self.ui.view_pass, SIGNAL("pressed()"), self.displayPass)
         self.connect(self.ui.view_pass, SIGNAL("released()"), self.hidePass)
-        #self.grid.addWidget(self.viewPass, 0, 2)
 
         self.validateEntry = self.ui.validate_entry
-        #self.validateEntry: QPushButton = QPushButton(self.tr("Déverrouiller"))
-        #self.grid.addWidget(self.validateEntry, 1, 1)
-
-        #self.wrong_label = QLabel(self.tr("Impossible d'ouvrir le coffre-fort, mauvais mot de passe."))
-        #self.grid.addWidget(self.wrong_label, 2, 0, 1, 3)
         self.ui.wrong_label.hide()
 
     @Slot()
