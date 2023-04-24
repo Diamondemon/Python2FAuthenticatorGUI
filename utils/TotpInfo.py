@@ -11,3 +11,6 @@ class TotpInfo(OtpInfo):
 
     def get_otp(self):
         return totp(self.secret, self.period, self.digits, self.algorithm.lower())
+
+    def get_type(self):
+        return "TOTP"

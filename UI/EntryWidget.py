@@ -3,6 +3,7 @@ from PySide6.QtCore import Slot, SIGNAL
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget
 
+from UI.AddDialog import AddDialog
 from UI.ui_EntryWidget import Ui_EntryWidget
 from utils.VaultEntry import VaultEntry
 
@@ -56,5 +57,5 @@ class EntryWidget(QWidget):
 
     @Slot()
     def edit_entry(self):
-        pass
-
+        dial = AddDialog(self, self.entry)
+        dial.open()

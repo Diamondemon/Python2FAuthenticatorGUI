@@ -20,3 +20,6 @@ class OtpInfo:
             return TotpInfo(secret, algo, digits, json_obj.get("period"))
         else:
             raise ValueError("Unrecognized otp type, not Totp!")
+
+    def get_type(self):
+        return "OTP"

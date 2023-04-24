@@ -17,7 +17,7 @@ class VaultEntry:
         self._group = group
         self._info = info
         self._usage_count = usage_count
-        self._note = note
+        self.note = note
         # self._icon
         # IconType _iconType = IconType.INVALID;
         # boolean _isFavorite;
@@ -92,6 +92,26 @@ class VaultEntry:
             return self._info.period
         else:
             return 0
+
+    @property
+    def info_type(self):
+        return self._info.get_type()
+
+    @property
+    def hash(self):
+        return self._info.algorithm.upper()
+
+    @property
+    def secret(self):
+        return self._info.secret
+
+    @property
+    def digits(self):
+        return self._info.digits
+
+    @property
+    def uses(self):
+        return self._usage_count
 
 
 if __name__ == "__main__":
