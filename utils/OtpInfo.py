@@ -14,12 +14,11 @@ class OtpInfo:
 
     @staticmethod
     def from_json(otp_type: str, json_obj: dict):
-        secret = base64.b32decode(json_obj.get("secret"))
+        secret = json_obj.get("secret")
         algo = json_obj.get("algo")
         digits = json_obj.get("digits")
-        from TotpInfo import TotpInfo
+        from utils.TotpInfo import TotpInfo
         if otp_type == TotpInfo.ID:
             return TotpInfo(secret, algo, digits, json_obj.get("period"))
         else:
             raise ValueError("Unrecognized otp type, not Totp!")
-

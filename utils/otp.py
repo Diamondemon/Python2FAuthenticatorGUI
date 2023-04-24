@@ -5,9 +5,9 @@ import time
 
 
 def hotp(key: str, counter: int, digits: int, digest: str):
-    key = base64.b32decode(key.upper() + '=' * ((8 - len(key)) % 8))
+    byte_key = base64.b32decode(key.upper() + '=' * ((8 - len(key)) % 8))
     counter = struct.pack('>Q', counter)
-    hs = hmac.new(key, counter, digest).digest()
+    hs = hmac.new(byte_key, counter, digest).digest()
     offset = hs[-1] & 0x0f
     binary = struct.unpack('>L', hs[offset:offset+4])[0] & 0x7fffffff
     return str(binary)[-digits:].zfill(digits)  # taking the [digits] last numbers
