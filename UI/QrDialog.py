@@ -82,12 +82,12 @@ class QrDialog(QDialog):
     @staticmethod
     def qimage_to_cvmat(incoming_image: QImage):
         '''  Converts a QImage into an opencv MAT format  '''
+        incoming_image = incoming_image.convertToFormat(QImage.Format.Format_RGBA8888)
 
         width = incoming_image.width()
         height = incoming_image.height()
 
         ptr = incoming_image.constBits()
-        # ptr.setsize(height * width * 4)
         arr = np.frombuffer(ptr, np.uint8).reshape((height, width, 4))
         return arr
 
