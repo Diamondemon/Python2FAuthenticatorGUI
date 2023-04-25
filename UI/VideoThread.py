@@ -10,9 +10,12 @@ class VideoThread(QThread):
         super().__init__()
         self._run_flag = True
     
-    def start(self, priority: QThread.Priority = ...) -> None:
+    def start(self, priority: QThread.Priority = None) -> None:
         self._run_flag = True
-        super().start(priority)
+        if priority is None:
+            super().start()
+        else:
+            super().start(priority)
 
     def run(self):
         # capture from web cam

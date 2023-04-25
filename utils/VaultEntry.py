@@ -26,7 +26,7 @@ class VaultEntry:
     def from_url(url: str):
         parsing = urlparse(url)
         if parsing.scheme != "otpauth":
-            raise ValueError("Not the right type of url scheme.")
+            raise ValueError(f"Not the right type of url scheme: {parsing.scheme}")
 
         if parsing.netloc == "totp":
             issuer, name = unquote(parsing.path).split(":")
