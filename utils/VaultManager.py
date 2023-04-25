@@ -52,3 +52,11 @@ class VaultManager:
 
     def is_vault_file_loaded(self):
         return self._vault_file is not None
+
+    @property
+    def vault_file(self):
+        return self._vault_file
+
+    @property
+    def repo(self):
+        return self._repo

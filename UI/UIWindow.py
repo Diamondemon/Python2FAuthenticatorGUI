@@ -1,6 +1,6 @@
 from PySide6.QtCore import Slot, SIGNAL, QKeyCombination, QSize, Qt
 from PySide6.QtGui import QKeySequence, QAction
-from PySide6.QtWidgets import (QMainWindow, QFileDialog)
+from PySide6.QtWidgets import (QMainWindow, QFileDialog, QWidget)
 from os import path
 
 from UI.EntriesPage import EntriesPage
@@ -30,13 +30,15 @@ class UIWindow(QMainWindow):
         self.uiMenuBar.addFileAction(self.tr("Importer"), self.import_file)
         self.uiMenuBar.addFileAction(self.tr("Exporter"), self.export)
         self.uiMenuBar.addFileAction(self.tr("Quitter"), self.quit_window, QKeySequence(self.tr("Ctrl+Q")))
+        self.uiMenuBar.addAction(self.tr("Verrouiller"), QKeySequence(self.tr("Ctrl+L")), self.lock_vault)
         self.setMenuBar(self.uiMenuBar)
 
-        self.authPage = AuthPage()
-        self.connect(self.authPage.validateEntry, SIGNAL("clicked()"), self.decrypt_task)
+        self.auth_page: AuthPage = AuthPage()
+        self.connect(self.auth_page.validateEntry, SIGNAL("clicked()"), self.decrypt_task)
 
     @Slot()
     def export(self):
+        # TODO
         pass
 
     @Slot()
@@ -46,26 +48,60 @@ class UIWindow(QMainWindow):
         if not filename[0]:
             return
         self.vaultFile = VaultRepository.from_file_import(filename[0])
-        self.setCentralWidget(self.authPage)
+        self.setCentralWidget(self.auth_page)
 
     @Slot()
     def decrypt_task(self):
-        passw = self.authPage.passEntry.text()
-        for slot in self.vaultFile.header.slots:
-            if type(self.vaultFile.header.slots[slot]) == PasswordSlot:
-                passSlot: PasswordSlot = self.vaultFile.header.slots[slot]
-                key = passSlot.derive_key(passw)
-                try:
-                    masterKey = passSlot.get_key(passSlot.create_decrypt_cipher(key))
-                except ValueError:
-                    self.authPage.wrongPass()
-                    return
-                self.authPage.goodPass()
-                creds = VaultFileCredentials(masterKey, self.vaultFile.header.slots)
-                self.repo = VaultRepository.from_vault_file(self.vaultFile, creds)
-                self.authPage = self.takeCentralWidget()
-                self.setCentralWidget(EntriesPage(self, self.repo))
+        """
+        Decrypts the content of the vault file.
+        :return: None
+        """
+        passw = self.auth_page.pass_entry.text()
+
+        if self.vaultFile is not None:
+            try:
+                creds = self.unlock_with_pass(self.vaultFile, passw)
+            except ValueError:
+                self.auth_page.wrong_pass()
+                return
+
+            self.auth_page.good_pass()
+            self.manager.load_from(self.vaultFile, creds)
+            self.vaultFile = None
+
+        else:
+            try:
+                creds = self.unlock_with_pass(self.manager.vault_file, passw)
+            except ValueError:
+                self.auth_page.wrong_pass()
+                return
+
+            self.auth_page.good_pass()
+            self.manager.unlock(creds)
+
+        self.auth_page: AuthPage | QWidget = self.takeCentralWidget()
+        self.setCentralWidget(EntriesPage(self, self.manager.repo))
+
+    @staticmethod
+    def unlock_with_pass(vault_file: VaultFile, password: str) -> VaultFileCredentials:
+        for slot in vault_file.header.slots:
+            if type(vault_file.header.slots[slot]) == PasswordSlot:
+                pass_slot: PasswordSlot | Slot = vault_file.header.slots[slot]
+                key = pass_slot.derive_key(password)
+                master_key = pass_slot.get_key(pass_slot.create_decrypt_cipher(key))
+
+                return VaultFileCredentials(master_key, vault_file.header.slots)
+
+    @Slot()
+    def lock_vault(self):
+        if self.manager.is_vault_loaded():
+            self.setCentralWidget(self.auth_page)
+            self.manager.lock(True)
 
     @Slot()
     def quit_window(self):
+        """
+        Quits the window
+        :return: None
+        """
         self.close()

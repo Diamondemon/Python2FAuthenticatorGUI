@@ -21,4 +21,4 @@ class Vault:
 
     def to_json(self):
         # TODO
-        pass
+        raise NotImplementedError
