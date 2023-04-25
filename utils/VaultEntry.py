@@ -28,34 +28,35 @@ class VaultEntry:
         if parsing.scheme != "otpauth":
             raise ValueError("Not the right type of url scheme.")
 
-        if parsing.netloc != "totp":
-            raise ValueError("Not a TOTP authentication.")
+        if parsing.netloc == "totp":
+            issuer, name = unquote(parsing.path).split(":")
+            issuer = issuer[1:]
+            query = parse_qs(parsing.query)
+            if query["digits"]:
+                query["digits"] = int(query["digits"][0])
+            else:
+                query["digits"] = 6
 
-        issuer, name = unquote(parsing.path).split(":")
-        query = parse_qs(parsing.query)
-        if query["digits"]:
-            query["digits"] = int(query["digits"][0])
-        else:
-            query["digits"] = 6
+            if query["algorithm"]:
+                query["algorithm"] = query["algorithm"][0]
+            else:
+                query["algorithm"] = "SHA1"
 
-        if query["algorithm"]:
-            query["algorithm"] = query["algorithm"][0]
-        else:
-            query["algorithm"] = "SHA1"
+            if query["secret"]:
+                query["secret"] = query["secret"][0]
+            else:
+                raise ValueError("No secret provided!")
 
-        if query["secret"]:
-            query["secret"] = query["secret"][0]
-        else:
-            raise ValueError("No secret provided!")
+            if query["period"]:
+                query["period"] = int(query["period"][0])
+            else:
+                raise ValueError("No period provided!")
 
-        if query["period"]:
-            query["period"] = int(query["period"][0])
-        else:
-            raise ValueError("No period provided!")
+            info = TotpInfo(query["secret"], query["algorithm"], query["digits"], query["period"])
 
-        info = TotpInfo(query["secret"], query["algorithm"], query["digits"], query["period"])
+            return VaultEntry(name=name, issuer=issuer, info=info)
 
-        return VaultEntry(name=name, issuer=issuer, info=info)
+        raise NotImplementedError("Not a TOTP authentication.")
 
     def get_otp(self):
         return self._info.get_otp()
@@ -112,6 +113,17 @@ class VaultEntry:
     @property
     def uses(self):
         return self._usage_count
+
+    def set_info(self, info: OtpInfo | TotpInfo):
+        self._info = info
+
+    def set_base(self, name: str, issuer: str, group: str):
+        self._name = name
+        self._issuer = issuer
+        self._group = group
+
+    def set_uses(self, uses: int):
+        self._usage_count = uses
 
 
 if __name__ == "__main__":

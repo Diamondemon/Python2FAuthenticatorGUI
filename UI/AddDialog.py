@@ -5,6 +5,8 @@ from PySide6.QtWidgets import QDialog, QLineEdit
 from UI.QrDialog import QrDialog
 from UI.UrlDialog import UrlDialog
 from UI.ui_AddDialog import Ui_AddDialog
+from utils.OtpInfo import OtpInfo
+from utils.TotpInfo import TotpInfo
 from utils.VaultEntry import VaultEntry
 
 
@@ -43,9 +45,9 @@ class AddDialog(QDialog):
         if index != -1:
             self.ui.hash_combo.setCurrentIndex(index)
 
-        self.ui.period_edit = self.entry.period
-        self.ui.digits_edit = self.entry.digits
-        self.ui.use_edit = self.entry.uses
+        self.ui.period_edit.setText(str(self.entry.period))
+        self.ui.digits_edit.setText(str(self.entry.digits))
+        self.ui.use_edit.setText(str(self.entry.uses))
 
     @Slot()
     def display_qr(self):
@@ -75,5 +77,24 @@ class AddDialog(QDialog):
             self.load_entry()
 
     def recompute_entry(self):
-        pass
-        # TODO
+        if self.entry is None:
+            self.entry = VaultEntry()
+        self.entry.set_base(self.ui.name_edit.text(), self.ui.issuer_edit.text(), self.ui.group_combo.currentText())
+        self.entry.note = self.ui.note_edit.text()
+
+        info_json = {
+            "secret": self.ui.secret_edit.text(),
+            "algo": self.ui.hash_combo.currentText(),
+            "digits": int(self.ui.digits_edit.text())
+        }
+
+        if self.ui.type_combo.currentText() == "TOTP":
+            otp_id = TotpInfo.ID
+            info_json["period"] = int(self.ui.period_edit.text())
+        else:
+            raise NotImplementedError("Types other than TOTP are not implemented.")
+
+        self.entry.set_info(OtpInfo.from_json(otp_id, info_json))
+        self.entry.set_uses(int(self.ui.use_edit.text()))
+
+        return self.entry
