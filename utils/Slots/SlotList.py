@@ -8,7 +8,7 @@ class SlotList:
 
     def __init__(self, slots=None):
         if slots is None:
-            slots = {}
+            slots: dict[UUID, Slot] = {}
         self.slots = slots
 
     @staticmethod

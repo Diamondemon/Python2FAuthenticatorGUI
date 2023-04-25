@@ -20,5 +20,7 @@ class Vault:
         return Vault(entries)
 
     def to_json(self):
-        # TODO
-        raise NotImplementedError
+        entries: list[dict] = []
+        for entry in self.entries:
+            entries.append(entry.to_json())
+        return {"version": 2, "entries": entries}

@@ -1,5 +1,6 @@
 
 class OtpInfo:
+    ID = "otp"
 
     def __init__(self, secret: str, algorithm: str = "SHA1", digits: int = 6):
 
@@ -21,5 +22,9 @@ class OtpInfo:
         else:
             raise ValueError("Unrecognized otp type, not Totp!")
 
+    def to_json(self):
+        # TODO
+        raise NotImplementedError
+
     def get_type(self):
-        return "OTP"
+        return self.ID.upper()

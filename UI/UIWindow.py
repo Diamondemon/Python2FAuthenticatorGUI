@@ -23,8 +23,8 @@ class UIWindow(QMainWindow):
         self.setMinimumSize(QSize(720, 405))
 
         self.manager = VaultManager()
+
         self.vaultFile: VaultFile | None = None
-        self.repo: VaultRepository | None = None
 
         self.uiMenuBar = UIMenuBar(self)
         self.uiMenuBar.addFileAction(self.tr("Importer"), self.import_file)
@@ -35,6 +35,12 @@ class UIWindow(QMainWindow):
 
         self.auth_page: AuthPage = AuthPage()
         self.connect(self.auth_page.validateEntry, SIGNAL("clicked()"), self.decrypt_task)
+
+        try:
+            self.manager.load_vault_file()
+            self.setCentralWidget(self.auth_page)
+        except FileNotFoundError:
+            pass
 
     @Slot()
     def export(self):
@@ -67,6 +73,7 @@ class UIWindow(QMainWindow):
 
             self.auth_page.good_pass()
             self.manager.load_from(self.vaultFile, creds)
+            self.manager.save()
             self.vaultFile = None
 
         else:

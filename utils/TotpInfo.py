@@ -12,5 +12,13 @@ class TotpInfo(OtpInfo):
     def get_otp(self):
         return totp(self.secret, self.period, self.digits, self.algorithm.lower())
 
+    def to_json(self):
+        return {
+            "secret": self.secret,
+            "algo": self.algorithm,
+            "digits": self.digits,
+            "period": self.period
+        }
+
     def get_type(self):
-        return "TOTP"
+        return self.ID.upper()

@@ -12,7 +12,7 @@ class VaultRepository:
         self._creds = creds
 
     def is_encryption_enabled(self):
-        return self._creds is None
+        return self._creds is not None
 
     def save(self):
         json_obj = self._vault.to_json()

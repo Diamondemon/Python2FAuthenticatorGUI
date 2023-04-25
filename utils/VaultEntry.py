@@ -77,7 +77,17 @@ class VaultEntry:
             json_obj.get("group"),
             note=json_obj.get("note")
         )
-        # TODO complete
+
+    def to_json(self):
+        return {
+            "uuid": str(self.uuid),
+            "name": self._name,
+            "issuer": self._issuer,
+            "type": self._info.ID,
+            "info": self._info.to_json(),
+            "group": self._group,
+            "note": self.note
+        }
 
     @property
     def name(self):

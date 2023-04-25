@@ -28,7 +28,7 @@ class VaultFile:
             vault_bytes = string.encode()
 
             result = creds.encrypt(vault_bytes)
-            self.content = base64.b64encode(result.data)
+            self.content = base64.b64encode(result.data).decode()
             self.header = Header(creds.slots, result.params)
 
     def is_encrypted(self):
@@ -41,7 +41,8 @@ class VaultFile:
 
     @staticmethod
     def from_json(json_obj):
-        return VaultFile(Header.from_json(json_obj["header"]), json_obj["db"])
+        header = Header.from_json(json_obj["header"])
+        return VaultFile(header, json_obj["db"])
 
     def to_json(self):
         return {"header": self.header.to_json(), "db": self.content}
