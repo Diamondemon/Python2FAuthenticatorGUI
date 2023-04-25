@@ -23,7 +23,6 @@ class OtpInfo:
             raise ValueError("Unrecognized otp type, not Totp!")
 
     def to_json(self):
-        # TODO
         raise NotImplementedError
 
     def get_type(self):
