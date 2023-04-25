@@ -4,6 +4,7 @@ from PySide6.QtCore import QThread, Signal
 
 
 class VideoThread(QThread):
+    """Thread handling a camera feed"""
     change_pixmap_signal = Signal(np.ndarray)
 
     def __init__(self):
@@ -11,6 +12,11 @@ class VideoThread(QThread):
         self._run_flag = True
     
     def start(self, priority: QThread.Priority = None) -> None:
+        """
+        Starts the thread
+        :param priority: Priority of the thread
+        :return: None
+        """
         self._run_flag = True
         if priority is None:
             super().start()
@@ -18,6 +24,10 @@ class VideoThread(QThread):
             super().start(priority)
 
     def run(self):
+        """
+        Captures the frames from a camera feed
+        :return: None
+        """
         # capture from web cam
         cap = cv2.VideoCapture(0)
         while self._run_flag:
@@ -28,6 +38,9 @@ class VideoThread(QThread):
         cap.release()
 
     def stop(self):
-        """Sets run flag to False and waits for thread to finish"""
+        """
+        Sets run flag to False and waits for thread to finish
+        :return: None
+        """
         self._run_flag = False
         self.wait()

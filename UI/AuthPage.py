@@ -1,8 +1,8 @@
 from PySide6.QtCore import Slot, SIGNAL
 from PySide6.QtWidgets import QLineEdit, QPushButton, QWidget, QGridLayout, QLabel
 
-from utils.VaultFile import VaultFile
 from UI.ui_AuthPage import Ui_AuthPage
+
 
 class AuthPage(QWidget):
 
@@ -11,25 +11,26 @@ class AuthPage(QWidget):
         self.ui = Ui_AuthPage()
         self.ui.setupUi(self)
 
-        self.passEntry = self.ui.pass_entry
+        self.pass_entry = self.ui.pass_entry
         self.ui.pass_entry.setEchoMode(QLineEdit.EchoMode.Password)
 
-        self.connect(self.ui.view_pass, SIGNAL("pressed()"), self.displayPass)
-        self.connect(self.ui.view_pass, SIGNAL("released()"), self.hidePass)
+        self.connect(self.ui.view_pass, SIGNAL("pressed()"), self.display_pass)
+        self.connect(self.ui.view_pass, SIGNAL("released()"), self.hide_pass)
 
         self.validateEntry = self.ui.validate_entry
         self.ui.wrong_label.hide()
 
     @Slot()
-    def displayPass(self):
+    def display_pass(self):
         self.ui.pass_entry.setEchoMode(QLineEdit.EchoMode.Normal)
 
     @Slot()
-    def hidePass(self):
+    def hide_pass(self):
         self.ui.pass_entry.setEchoMode(QLineEdit.EchoMode.Password)
 
-    def wrongPass(self):
+    def wrong_pass(self):
         self.ui.wrong_label.show()
 
-    def goodPass(self):
+    def good_pass(self):
         self.ui.wrong_label.hide()
+        self.ui.pass_entry.setText("")

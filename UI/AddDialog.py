@@ -11,6 +11,7 @@ from utils.VaultEntry import VaultEntry
 
 
 class AddDialog(QDialog):
+    """Dialog to add or edit an entry"""
 
     def __init__(self, master, entry: VaultEntry | None = None):
         super().__init__(master)
@@ -32,6 +33,10 @@ class AddDialog(QDialog):
             self.load_entry()
 
     def load_entry(self):
+        """
+        Loads the entry into the different fields.
+        :return: None
+        """
         self.ui.name_edit.setText(self.entry.name)
         self.ui.issuer_edit.setText(self.entry.issuer)
         self.ui.note_edit.setText(self.entry.note)
@@ -51,6 +56,10 @@ class AddDialog(QDialog):
 
     @Slot()
     def display_qr(self):
+        """
+        Opens the dialog to load the entry from a qr code, then loads it.
+        :return: None
+        """
         dlg = QrDialog(self)
         button = dlg.exec()
         if button == 1:
@@ -64,6 +73,10 @@ class AddDialog(QDialog):
 
     @Slot()
     def display_url(self):
+        """
+        Opens the dialog to load the entry from an url, then loads it.
+        :return: None
+        """
         dlg = UrlDialog(self)
         button = dlg.exec()
         if button == 1:
@@ -77,6 +90,10 @@ class AddDialog(QDialog):
             self.load_entry()
 
     def recompute_entry(self):
+        """
+        Recomputes the entry according to all the input fields
+        :return: recomputed entry
+        """
         if self.entry is None:
             self.entry = VaultEntry()
         self.entry.set_base(self.ui.name_edit.text(), self.ui.issuer_edit.text(), self.ui.group_combo.currentText())
