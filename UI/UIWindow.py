@@ -6,6 +6,7 @@ from os import path
 from UI.AddDialog import AddDialog
 from UI.EntriesPage import EntriesPage
 from UI.EntryWidget import EntryWidget
+from UI.FirstUseWidget import FirstUseWidget
 from UI.UIMenuBar import UIMenuBar
 from utils.VaultEntry import VaultEntry
 
@@ -45,7 +46,10 @@ class UIWindow(QMainWindow):
             self.manager.load_vault_file()
             self.setCentralWidget(self.auth_page)
         except FileNotFoundError:
-            pass
+            widget = FirstUseWidget(self)
+            widget.new_signal.connect(self.create_blank_vault)
+            widget.import_signal.connect(self.import_file)
+            self.setCentralWidget(widget)
 
     @Slot()
     def export(self):
@@ -60,6 +64,11 @@ class UIWindow(QMainWindow):
             return
         self.vaultFile = VaultRepository.from_file_import(filename[0])
         self.setCentralWidget(self.auth_page)
+
+    @Slot()
+    def create_blank_vault(self):
+        # TODO
+        raise NotImplementedError
 
     @Slot()
     def add_entry(self):
