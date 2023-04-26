@@ -25,5 +25,8 @@ class OtpInfo:
     def to_json(self):
         raise NotImplementedError
 
+    def to_url(self):
+        return f"digits={self.digits}&algorithm={self.algorithm}&secret={self.secret}"
+
     def get_type(self):
         return self.ID.upper()

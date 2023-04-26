@@ -1,7 +1,7 @@
 from uuid import uuid4, UUID
 
 from utils.OtpInfo import OtpInfo
-from urllib.parse import urlparse, unquote, parse_qs
+from urllib.parse import urlparse, unquote, parse_qs, urlunsplit, quote
 
 from utils.TotpInfo import TotpInfo
 
@@ -28,35 +28,47 @@ class VaultEntry:
         if parsing.scheme != "otpauth":
             raise ValueError(f"Not the right type of url scheme: {parsing.scheme}")
 
-        if parsing.netloc == "totp":
+        if parsing.netloc == TotpInfo.ID:
             issuer, name = unquote(parsing.path).split(":")
             issuer = issuer[1:]
             query = parse_qs(parsing.query)
+            parsed_query = {}
             if query["digits"]:
-                query["digits"] = int(query["digits"][0])
+                parsed_query["digits"] = int(query["digits"][0])
             else:
-                query["digits"] = 6
+                parsed_query["digits"] = 6
 
             if query["algorithm"]:
-                query["algorithm"] = query["algorithm"][0]
+                parsed_query["algorithm"] = query["algorithm"][0]
             else:
-                query["algorithm"] = "SHA1"
+                parsed_query["algorithm"] = "SHA1"
 
             if query["secret"]:
-                query["secret"] = query["secret"][0]
+                parsed_query["secret"] = query["secret"][0]
             else:
                 raise ValueError("No secret provided!")
 
             if query["period"]:
-                query["period"] = int(query["period"][0])
+                parsed_query["period"] = int(query["period"][0])
             else:
                 raise ValueError("No period provided!")
 
-            info = TotpInfo(query["secret"], query["algorithm"], query["digits"], query["period"])
+            info = TotpInfo(parsed_query["secret"], parsed_query["algorithm"], parsed_query["digits"],
+                            parsed_query["period"])
 
             return VaultEntry(name=name, issuer=issuer, info=info)
 
         raise NotImplementedError("Not a TOTP authentication.")
+
+    def to_url(self):
+        scheme = "otpauth"
+        netloc = self._info.ID
+        path = quote(":".join([f"/{self._issuer}", self._name]))
+        query = f"{self._info.to_url()}&issuer={self.issuer}"
+        fragment = ""
+
+        return urlunsplit((scheme, netloc, path, query, fragment))
+
 
     def get_otp(self):
         return self._info.get_otp()

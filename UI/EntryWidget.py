@@ -1,9 +1,12 @@
+import qrcode
+from PIL.ImageQt import ImageQt
 from PySide6 import QtCore
-from PySide6.QtCore import Slot, SIGNAL, Signal
-from PySide6.QtGui import Qt
-from PySide6.QtWidgets import QWidget
+from PySide6.QtCore import Slot, SIGNAL, Signal, QSize
+from PySide6.QtGui import Qt, QIcon, QImage, QPixmap
+from PySide6.QtWidgets import QWidget, QMessageBox, QDialog, QVBoxLayout, QLabel
 
 from UI.AddDialog import AddDialog
+from UI.QrDisplay import QrDisplay
 from UI.ui_EntryWidget import Ui_EntryWidget
 from utils.VaultEntry import VaultEntry
 
@@ -18,13 +21,49 @@ class EntryWidget(QWidget):
         self.ui.host_label.setTextFormat(Qt.TextFormat.MarkdownText)
         self.setFixedHeight(120)
         self.ui.pushButton.connect(SIGNAL("clicked()"), self.edit_entry)
-        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
+        self.setup_actions()
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
+
         self.entry = entry
 
         self.setup_host_name()
         self.timer = QtCore.QTimer(self)
         self.timer.timeout.connect(self.refresh_otp)
         self.schedule_timers()
+
+    def setup_actions(self):
+        icon = QIcon()
+        icon_theme_name = u"document-send"
+        if QIcon.hasThemeIcon(icon_theme_name):
+            icon = QIcon.fromTheme(icon_theme_name)
+        else:
+            icon.addFile(u".", QSize(), QIcon.Normal, QIcon.Off)
+        self.addAction(icon, self.tr("Envoyer en QR Code"), self.to_qr_code)
+
+        icon_theme_name = u"edit"
+        if QIcon.hasThemeIcon(icon_theme_name):
+            icon = QIcon.fromTheme(icon_theme_name)
+        else:
+            icon.addFile(u".", QSize(), QIcon.Normal, QIcon.Off)
+        self.addAction(icon, self.tr("Modifier"), self.edit_entry)
+
+        icon_theme_name = u"edit-delete"
+        if QIcon.hasThemeIcon(icon_theme_name):
+            icon = QIcon.fromTheme(icon_theme_name)
+        else:
+            icon.addFile(u".", QSize(), QIcon.Normal, QIcon.Off)
+        self.addAction(icon, self.tr("Supprimer"), self.launch_delete)
+
+    @Slot()
+    def launch_delete(self):
+        button = QMessageBox(QMessageBox.Icon.Warning, self.tr("Supprimer l'entrée"),
+                    self.tr("Cette action est irreversible, êtes-vous sûr?"),
+                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+                    self
+                 ).exec()
+
+        if button == QMessageBox.StandardButton.Yes:
+            self.delete_signal.emit(self)
 
     def schedule_timers(self):
         self.timer.stop()
@@ -72,5 +111,9 @@ class EntryWidget(QWidget):
             self.schedule_timers()
 
     @Slot()
-    def display_context_menu(self):
-        pass
+    def to_qr_code(self):
+        url = self.entry.to_url()
+
+        dial = QrDisplay(self, url)
+        dial.exec()
+

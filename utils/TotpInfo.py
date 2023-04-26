@@ -20,5 +20,8 @@ class TotpInfo(OtpInfo):
             "period": self.period
         }
 
+    def to_url(self):
+        return f"period={self.period}&{super().to_url()}"
+
     def get_type(self):
         return self.ID.upper()

@@ -49,23 +49,26 @@ class EntriesPage(QWidget):
             self.vertical_layout.removeWidget(item.widget())
 
         for entry in self.repo.get_vault().entries:
-            self.vertical_layout.addWidget(EntryWidget(self.ui.content, entry))
+            widget = EntryWidget(self.ui.content, entry)
+            widget.delete_signal.connect(self.remove_entry)
+            self.vertical_layout.addWidget(widget)
 
-    @Slot(int)
-    def remove_entry(self, index: int):
-        if self.vertical_layout.itemAt(index):
-            item = self.vertical_layout.itemAt(index)
-            item.widget().deleteLater()
-            self.vertical_layout.removeWidget(item.widget())
+    @Slot(EntryWidget)
+    def remove_entry(self, widget: EntryWidget):
+        self.repo.get_vault().entries.remove(widget.entry)
+        widget.deleteLater()
+        self.vertical_layout.removeWidget(widget)
 
-            self.update_entries_period()
-            self.progress_bar_behaviour()
-            self.save_repo()
+        self.update_entries_period()
+        self.progress_bar_behaviour()
+        self.save_repo()
 
     @Slot(VaultEntry)
     def add_entry(self, new_entry: VaultEntry):
         self.repo.get_vault().entries.append(new_entry)
-        self.vertical_layout.addWidget(EntryWidget(self.ui.content, new_entry))
+        widget = EntryWidget(self.ui.content, new_entry)
+        widget.delete_signal.connect(self.remove_entry)
+        self.vertical_layout.addWidget(widget)
         self.save_repo()
 
     def save_repo(self):
