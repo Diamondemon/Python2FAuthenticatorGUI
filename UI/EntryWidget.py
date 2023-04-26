@@ -1,5 +1,5 @@
 from PySide6 import QtCore
-from PySide6.QtCore import Slot, SIGNAL
+from PySide6.QtCore import Slot, SIGNAL, Signal
 from PySide6.QtGui import Qt
 from PySide6.QtWidgets import QWidget
 
@@ -9,6 +9,7 @@ from utils.VaultEntry import VaultEntry
 
 
 class EntryWidget(QWidget):
+    delete_signal = Signal(QWidget)
 
     def __init__(self, master, entry: VaultEntry):
         super().__init__(master)
@@ -17,6 +18,7 @@ class EntryWidget(QWidget):
         self.ui.host_label.setTextFormat(Qt.TextFormat.MarkdownText)
         self.setFixedHeight(120)
         self.ui.pushButton.connect(SIGNAL("clicked()"), self.edit_entry)
+        self.setContextMenuPolicy(Qt.ContextMenuPolicy.CustomContextMenu)
         self.entry = entry
 
         self.setup_host_name()
@@ -68,3 +70,7 @@ class EntryWidget(QWidget):
             self.entry = dial.recompute_entry()
             self.setup_host_name()
             self.schedule_timers()
+
+    @Slot()
+    def display_context_menu(self):
+        pass

@@ -22,21 +22,19 @@ class EntriesPage(QWidget):
         self.ui.content.setLayout(self.vertical_layout)
 
         self.repo = repo
+        self.update_entries_period()
         self.display_entries()
 
-        if self.entries_period != -1:
-            self.timer = QtCore.QTimer(self)
-            self.timer.timeout.connect(self.update_bar)
-            self.timer.setInterval(100)
-            self.timer.start()
-        else:
-            self.ui.progress_bar.hide()
+        self.timer = QtCore.QTimer(self)
+        self.timer.timeout.connect(self.update_bar)
+        self.timer.setInterval(100)
 
-    def display_entries(self):
-        while self.vertical_layout.children():
-            self.vertical_layout.removeItem(0)
+        self.progress_bar_behaviour()
+
+    def update_entries_period(self):
+        self.entries_period = 0
+
         for entry in self.repo.get_vault().entries:
-            self.vertical_layout.addWidget(EntryWidget(self.ui.content, entry))
             if (self.entries_period != 0 and self.entries_period != entry.period and entry.period != 0) \
                     or self.entries_period == -1:
                 self.entries_period = -1
@@ -44,7 +42,44 @@ class EntriesPage(QWidget):
                 self.entries_period = max(entry.period, self.entries_period)
 
     @Slot()
+    def display_entries(self):
+        while self.vertical_layout.itemAt(0):
+            item = self.vertical_layout.itemAt(0)
+            item.widget().deleteLater()
+            self.vertical_layout.removeWidget(item.widget())
+
+        for entry in self.repo.get_vault().entries:
+            self.vertical_layout.addWidget(EntryWidget(self.ui.content, entry))
+
+    @Slot(int)
+    def remove_entry(self, index: int):
+        if self.vertical_layout.itemAt(index):
+            item = self.vertical_layout.itemAt(index)
+            item.widget().deleteLater()
+            self.vertical_layout.removeWidget(item.widget())
+
+            self.update_entries_period()
+            self.progress_bar_behaviour()
+            self.save_repo()
+
+    @Slot(VaultEntry)
+    def add_entry(self, new_entry: VaultEntry):
+        self.repo.get_vault().entries.append(new_entry)
+        self.vertical_layout.addWidget(EntryWidget(self.ui.content, new_entry))
+        self.save_repo()
+
+    def save_repo(self):
+        self.repo.save()
+
+    @Slot()
     def update_bar(self):
         self.ui.progress_bar.setValue(int((time.time() % self.entries_period)/self.entries_period *
                                           self.ui.progress_bar.maximum()))
         self.ui.progress_bar.update()
+
+    def progress_bar_behaviour(self):
+        self.timer.stop()
+        if self.entries_period != -1:
+            self.timer.start()
+        else:
+            self.ui.progress_bar.hide()

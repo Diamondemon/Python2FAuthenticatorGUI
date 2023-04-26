@@ -1,11 +1,13 @@
-from PySide6.QtCore import Slot, SIGNAL, QKeyCombination, QSize, Qt
+from PySide6.QtCore import Slot, SIGNAL, QKeyCombination, QSize, Qt, QMetaObject, Signal
 from PySide6.QtGui import QKeySequence, QAction
 from PySide6.QtWidgets import (QMainWindow, QFileDialog, QWidget)
 from os import path
 
+from UI.AddDialog import AddDialog
 from UI.EntriesPage import EntriesPage
 from UI.EntryWidget import EntryWidget
 from UI.UIMenuBar import UIMenuBar
+from utils.VaultEntry import VaultEntry
 
 from utils.VaultManager import VaultManager
 from utils.VaultRepository import VaultRepository
@@ -16,6 +18,7 @@ from UI.AuthPage import AuthPage
 
 
 class UIWindow(QMainWindow):
+    refresh_signal = Signal(VaultEntry)
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -25,12 +28,14 @@ class UIWindow(QMainWindow):
         self.manager = VaultManager()
 
         self.vaultFile: VaultFile | None = None
+        self.refresh_connection: QMetaObject.Connection | None = None
 
         self.uiMenuBar = UIMenuBar(self)
         self.uiMenuBar.addFileAction(self.tr("Importer"), self.import_file)
         self.uiMenuBar.addFileAction(self.tr("Exporter"), self.export)
         self.uiMenuBar.addFileAction(self.tr("Quitter"), self.quit_window, QKeySequence(self.tr("Ctrl+Q")))
         self.uiMenuBar.addAction(self.tr("Verrouiller"), QKeySequence(self.tr("Ctrl+L")), self.lock_vault)
+        self.uiMenuBar.addAction(self.tr("Ajouter"), QKeySequence(self.tr("Ctrl+A")), self.add_entry)
         self.setMenuBar(self.uiMenuBar)
 
         self.auth_page: AuthPage = AuthPage()
@@ -55,6 +60,14 @@ class UIWindow(QMainWindow):
             return
         self.vaultFile = VaultRepository.from_file_import(filename[0])
         self.setCentralWidget(self.auth_page)
+
+    @Slot()
+    def add_entry(self):
+        if self.manager.is_vault_loaded():
+            dial = AddDialog(self)
+            button = dial.exec()
+            if button == 1:
+                self.refresh_signal.emit(dial.recompute_entry())
 
     @Slot()
     def decrypt_task(self):
@@ -86,8 +99,11 @@ class UIWindow(QMainWindow):
             self.auth_page.good_pass()
             self.manager.unlock(creds)
 
-        self.auth_page: AuthPage | QWidget = self.takeCentralWidget()
-        self.setCentralWidget(EntriesPage(self, self.manager.repo))
+        # self.auth_page: AuthPage | QWidget =
+        self.takeCentralWidget()
+        entries_page = EntriesPage(self, self.manager.repo)
+        self.refresh_connection = self.refresh_signal.connect(entries_page.add_entry)
+        self.setCentralWidget(entries_page)
 
     @staticmethod
     def unlock_with_pass(vault_file: VaultFile, password: str) -> VaultFileCredentials:
@@ -102,6 +118,8 @@ class UIWindow(QMainWindow):
     @Slot()
     def lock_vault(self):
         if self.manager.is_vault_loaded():
+            self.takeCentralWidget().disconnect(self.refresh_connection)
+            self.refresh_connection = None
             self.setCentralWidget(self.auth_page)
             self.manager.lock(True)
 

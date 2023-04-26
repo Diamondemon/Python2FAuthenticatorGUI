@@ -13,7 +13,7 @@ from UI.ui_QrDialog import Ui_QrDialog
 class QrDialog(QDialog):
     """Dialog used to scan a Qr Code to load an OTP entry"""
 
-    def __init__(self, master):
+    def __init__(self, master=None):
         super().__init__(master)
         self.ui = Ui_QrDialog()
         self.ui.setupUi(self)
