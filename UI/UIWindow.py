@@ -57,8 +57,12 @@ class UIWindow(QMainWindow):
 
     @Slot()
     def export(self):
-        # TODO
-        pass
+        if self.manager.is_vault_loaded():
+            filename = QFileDialog.getSaveFileName(self, self.tr("Exporter le fichier de coffre"),
+                                                   f"{path.dirname(__file__)}/2fa-export.json",
+                                                   self.tr("Fichiers json (*.json)"))
+            if filename[0]:
+                self.manager.export(filename[0])
 
     @Slot()
     def import_file(self):

@@ -24,6 +24,16 @@ class VaultRepository:
 
         file.to_file(VaultRepository.FILEPATH + VaultRepository.FILENAME)
 
+    def export(self, filename):
+        json_obj = self._vault.to_json()
+        file = VaultFile()
+        if self.is_encryption_enabled():
+            file.set_content(json_obj, self._creds)
+        else:
+            file.set_content(json_obj)
+
+        file.to_file(filename)
+
     def get_vault(self):
         return self._vault
 

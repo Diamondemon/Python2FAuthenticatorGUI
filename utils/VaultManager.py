@@ -7,7 +7,7 @@ from utils.VaultRepository import VaultRepository
 class VaultManager:
 
     def __init__(self):
-        self._vault_file = None
+        self._vault_file: VaultFile | None = None
         self._repo: VaultRepository | None = None
 
     def init_new(self, creds: VaultFileCredentials):
@@ -16,6 +16,10 @@ class VaultManager:
         self.save()
 
         return self._repo
+
+    def export(self, filename):
+        if self.is_vault_loaded():
+            self.repo.export(filename)
 
     def load_from(self, vault_file: VaultFile, creds: VaultFileCredentials | None):
         self._vault_file = None
