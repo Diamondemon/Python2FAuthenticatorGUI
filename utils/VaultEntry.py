@@ -29,8 +29,10 @@ class VaultEntry:
             raise ValueError(f"Not the right type of url scheme: {parsing.scheme}")
 
         if parsing.netloc == TotpInfo.ID:
-            issuer, name = unquote(parsing.path).split(":")
-            issuer = issuer[1:]
+            issuer_name = unquote(parsing.path)[1:].split(":")
+            if len(issuer_name)==1:
+                issuer_name = [""]+issuer_name
+            issuer, name = issuer_name
             query = parse_qs(parsing.query)
             parsed_query = {}
             if query["digits"]:
@@ -68,7 +70,6 @@ class VaultEntry:
         fragment = ""
 
         return urlunsplit((scheme, netloc, path, query, fragment))
-
 
     def get_otp(self):
         return self._info.get_otp()

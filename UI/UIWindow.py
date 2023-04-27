@@ -7,6 +7,7 @@ from UI.AddDialog import AddDialog
 from UI.EntriesPage import EntriesPage
 from UI.EntryWidget import EntryWidget
 from UI.FirstUseWidget import FirstUseWidget
+from UI.NewAuthDialog import NewAuthDialog
 from UI.UIMenuBar import UIMenuBar
 from utils.VaultEntry import VaultEntry
 
@@ -44,7 +45,10 @@ class UIWindow(QMainWindow):
 
         try:
             self.manager.load_vault_file()
-            self.setCentralWidget(self.auth_page)
+            if self.manager.is_vault_loaded():
+                self.display_vault()
+            else:
+                self.setCentralWidget(self.auth_page)
         except FileNotFoundError:
             widget = FirstUseWidget(self)
             widget.new_signal.connect(self.create_blank_vault)
@@ -63,12 +67,23 @@ class UIWindow(QMainWindow):
         if not filename[0]:
             return
         self.vaultFile = VaultRepository.from_file_import(filename[0])
-        self.setCentralWidget(self.auth_page)
+        if self.vaultFile.is_encrypted():
+            self.takeCentralWidget()
+            self.setCentralWidget(self.auth_page)
+        else:
+            self.manager.load_from(self.vaultFile, None)
+            self.vaultFile = None
+            self.display_vault()
 
     @Slot()
     def create_blank_vault(self):
-        # TODO
-        raise NotImplementedError
+        dial = NewAuthDialog(self)
+        button = dial.exec()
+
+        if button == 1:
+            creds = dial.compute_credentials()
+            self.manager.init_new(creds)
+            self.display_vault()
 
     @Slot()
     def add_entry(self):
@@ -107,8 +122,9 @@ class UIWindow(QMainWindow):
 
             self.auth_page.good_pass()
             self.manager.unlock(creds)
+        self.display_vault()
 
-        # self.auth_page: AuthPage | QWidget =
+    def display_vault(self):
         self.takeCentralWidget()
         entries_page = EntriesPage(self, self.manager.repo)
         self.refresh_connection = self.refresh_signal.connect(entries_page.add_entry)
@@ -126,7 +142,7 @@ class UIWindow(QMainWindow):
 
     @Slot()
     def lock_vault(self):
-        if self.manager.is_vault_loaded():
+        if self.manager.is_vault_loaded() and self.manager.repo.is_encryption_enabled():
             self.takeCentralWidget().disconnect(self.refresh_connection)
             self.refresh_connection = None
             self.setCentralWidget(self.auth_page)

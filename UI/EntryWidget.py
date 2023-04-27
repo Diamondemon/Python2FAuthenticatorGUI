@@ -69,15 +69,12 @@ class EntryWidget(QWidget):
         self.timer.stop()
         self.refresh_otp()
         secs = self.entry.period
-        self.timer.setInterval(secs * 1000)
+        self.timer.setInterval(1000)
 
-        # TODO fix definition of interval
         d1 = QtCore.QDateTime.currentDateTimeUtc()
         d2 = QtCore.QDateTime(d1)
         t1 = d1.time()
-        d2.setTime(QtCore.QTime(t1.hour(), t1.minute(), 30))
-        if t1.second() >= secs:
-            d2 = d2.addSecs(secs)
+        d2.setTime(QtCore.QTime(t1.hour(), t1.minute(), t1.second()+1))
         QtCore.QTimer.singleShot(d1.msecsTo(d2), self.start_main_timer)
 
     def start_main_timer(self):

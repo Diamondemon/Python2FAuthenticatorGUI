@@ -9,6 +9,10 @@ from utils.SCryptParams import SCryptParams
 CRYPTO_TAG_LEN = 16
 CRYPTO_KEY_LEN = 32
 
+CRYPTO_SCRYPT_N = 1 << 15
+CRYPTO_SCRYPT_r = 8
+CRYPTO_SCRYPT_p = 1
+
 
 def create_decrypt_cipher(key: bytes, nonce: bytes):
     return AES.new(key, AES.MODE_GCM, nonce=nonce, mac_len=CRYPTO_TAG_LEN)

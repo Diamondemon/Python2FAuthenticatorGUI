@@ -70,6 +70,8 @@ class EntriesPage(QWidget):
         widget.delete_signal.connect(self.remove_entry)
         self.vertical_layout.addWidget(widget)
         self.save_repo()
+        self.update_entries_period()
+        self.progress_bar_behaviour()
 
     def save_repo(self):
         self.repo.save()
@@ -82,7 +84,8 @@ class EntriesPage(QWidget):
 
     def progress_bar_behaviour(self):
         self.timer.stop()
-        if self.entries_period != -1:
+        if self.entries_period != -1 and self.entries_period != 0:
             self.timer.start()
+            self.ui.progress_bar.show()
         else:
             self.ui.progress_bar.hide()

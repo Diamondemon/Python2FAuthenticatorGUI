@@ -1,3 +1,4 @@
+import uuid
 from uuid import UUID
 
 from utils import CryptoUtils, Hex
@@ -8,8 +9,10 @@ from utils.Slots.Slot import Slot
 
 class PasswordSlot(Slot):
 
-    def __init__(self, slot_uuid: UUID, key: bytes, key_params: CryptoParams,
-                 scrypt_params: SCryptParams, repaired: bool, is_backup: bool):
+    def __init__(self, slot_uuid: UUID = uuid.uuid4(), key: bytes = bytes(),
+                 key_params: CryptoParams = CryptoParams(bytes(), bytes()),
+                 scrypt_params: SCryptParams = SCryptParams(0, 0, 0, bytes()),
+                 repaired: bool = False, is_backup: bool = False):
         super().__init__(slot_uuid, key, key_params)
         self.repaired = repaired
         self.scrypt_params = scrypt_params

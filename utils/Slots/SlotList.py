@@ -13,7 +13,7 @@ class SlotList:
 
     @staticmethod
     def from_json(json_obj: list):
-        if len(json_obj) == 0:
+        if json_obj is None or len(json_obj) == 0:
             return None
         slots = {}
         for json_slot in json_obj:
@@ -38,3 +38,6 @@ class SlotList:
 
     def __getitem__(self, item) -> Slot:
         return self.slots[item]
+
+    def append(self, slot: Slot):
+        self.slots[slot.uuid] = slot
