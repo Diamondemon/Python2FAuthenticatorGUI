@@ -87,7 +87,9 @@ class VaultManager:
                 if type(slots[slot]) == PasswordSlot:
                     pass_slot: PasswordSlot | Slot = slots[slot]
                     try:
-                        pass_slot.derive_key(password)
+                        key = pass_slot.derive_key(password)
+                        pass_slot.get_key(pass_slot.create_decrypt_cipher(key))
+
                         return True
                     except ValueError:
                         pass
@@ -97,7 +99,8 @@ class VaultManager:
                 if type(slots[slot]) == PasswordSlot:
                     pass_slot: PasswordSlot | Slot = slots[slot]
                     try:
-                        pass_slot.derive_key(password)
+                        key = pass_slot.derive_key(password)
+                        pass_slot.get_key(pass_slot.create_decrypt_cipher(key))
                         return True
                     except ValueError:
                         pass

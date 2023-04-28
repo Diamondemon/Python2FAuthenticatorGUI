@@ -21,7 +21,6 @@ class PrefDock(QDockWidget):
         self.password_label = QLabel(self.tr("Mot de passe actuel"))
         self.password_edit = QLineEdit()
         self.change_button = QPushButton(self.tr("Changer le mot de passe"))
-        self.remove_button = QPushButton(self.tr("Supprimer le mot de passe"))
 
         self.setup_security_menu()
 
@@ -43,9 +42,7 @@ class PrefDock(QDockWidget):
         layout.addWidget(self.password_label, 0, 0)
         layout.addWidget(self.password_edit, 0, 1)
         layout.addWidget(self.change_button, 1, 0, 1, 2)
-        layout.addWidget(self.remove_button, 2, 0, 1, 2)
-        self.change_button.clicked.connect(self.password_change_signal.emit)
-        self.remove_button.clicked.connect(self.remove_password_signal.emit)
+        self.change_button.clicked.connect(self.verify_password)
         self.security_menu.set_content_layout(layout)
         self.encryption_toggled()
 
@@ -55,12 +52,10 @@ class PrefDock(QDockWidget):
             self.password_label.show()
             self.password_edit.show()
             self.change_button.setText(self.tr("Changer le mot de passe"))
-            self.remove_button.show()
         else:
             self.password_label.hide()
             self.password_edit.hide()
             self.change_button.setText(self.tr("Ajouter un mot de passe"))
-            self.remove_button.hide()
 
     @Slot(bool)
     def toggle_security_menu(self, locked: bool):

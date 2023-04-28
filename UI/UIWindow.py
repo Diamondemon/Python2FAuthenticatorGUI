@@ -146,6 +146,7 @@ class UIWindow(QMainWindow):
             self.manager.load_from(self.vaultFile, creds)
             self.manager.save()
             self.vaultFile = None
+            self.preferences_dock.encryption_toggled()
 
         else:
             try:
