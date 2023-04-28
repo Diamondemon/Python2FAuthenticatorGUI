@@ -1,11 +1,10 @@
-from PySide6.QtCore import Slot, SIGNAL, QKeyCombination, QSize, Qt, QMetaObject, Signal
-from PySide6.QtGui import QKeySequence, QAction
-from PySide6.QtWidgets import (QMainWindow, QFileDialog, QWidget)
+from PySide6.QtCore import Slot, QSize, Qt, QMetaObject, Signal
+from PySide6.QtGui import QKeySequence
+from PySide6.QtWidgets import (QMainWindow, QFileDialog)
 from os import path
 
 from UI.AddDialog import AddDialog
 from UI.EntriesPage import EntriesPage
-from UI.EntryWidget import EntryWidget
 from UI.FirstUseWidget import FirstUseWidget
 from UI.NewAuthDialog import NewAuthDialog
 from UI.PrefDock import PrefDock
@@ -46,6 +45,7 @@ class UIWindow(QMainWindow):
 
         self.auth_page: AuthPage = AuthPage()
         self.preferences_dock = PrefDock(self.tr("Préférences"), self, self.manager)
+        self.preferences_dock.setFixedWidth(300)
         self.addDockWidget(Qt.RightDockWidgetArea, self.preferences_dock)
         self.preferences_dock.hide()
 
@@ -53,7 +53,7 @@ class UIWindow(QMainWindow):
         self.preferences_dock.remove_password_signal.connect(self.remove_vault_creds)
         self.locked_signal.connect(self.preferences_dock.toggle_security_menu)
 
-        self.connect(self.auth_page.validateEntry, SIGNAL("clicked()"), self.decrypt_task)
+        self.auth_page.password_entered_signal.connect(self.decrypt_task)
 
         try:
             self.manager.load_vault_file()

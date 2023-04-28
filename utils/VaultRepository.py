@@ -59,7 +59,6 @@ class VaultRepository:
 
     @staticmethod
     def read_vault_file():
-        # TODO not hardcode
         return VaultFile.from_file(VaultRepository.FILEPATH + VaultRepository.FILENAME)
 
     @staticmethod

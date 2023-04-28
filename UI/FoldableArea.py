@@ -17,7 +17,8 @@ class FoldableArea(QWidget):
         self.ui.setupUi(self)
 
         self.animation_duration = animation_duration
-        self.toggle_animation = QParallelAnimationGroup()
+        self.reveal_animation = QParallelAnimationGroup()
+        self.collapse_animation = QParallelAnimationGroup()
         self.setup_toggle_button(title)
         self.setup_header_line()
         self.setup_animation()
@@ -42,17 +43,23 @@ class FoldableArea(QWidget):
         self.ui.header_line.setFrameShadow(QFrame.Shadow.Sunken)
 
     def setup_animation(self):
-        self.toggle_animation.addAnimation(QPropertyAnimation(self, b"minimumHeight"))
-        self.toggle_animation.addAnimation(QPropertyAnimation(self, b"maximumHeight"))
-        self.toggle_animation.addAnimation(QPropertyAnimation(self.ui.content_area, b"maximumHeight"))
+        self.reveal_animation.addAnimation(QPropertyAnimation(self, b"minimumHeight"))
+        self.reveal_animation.addAnimation(QPropertyAnimation(self, b"maximumHeight"))
+        self.reveal_animation.addAnimation(QPropertyAnimation(self.ui.content_area, b"maximumHeight"))
 
-    @Slot(bool)
-    def toggle(self, checked: bool):
+        self.collapse_animation.addAnimation(QPropertyAnimation(self, b"minimumHeight"))
+        self.collapse_animation.addAnimation(QPropertyAnimation(self, b"maximumHeight"))
+        self.collapse_animation.addAnimation(QPropertyAnimation(self.ui.content_area, b"maximumHeight"))
+
+    @Slot()
+    def toggle(self):
+        checked = self.ui.toggle_button.isChecked()
         arrow_type = Qt.DownArrow if checked else Qt.RightArrow
-        direction = QAbstractAnimation.Forward if checked else QAbstractAnimation.Backward
         self.ui.toggle_button.setArrowType(arrow_type)
-        self.toggle_animation.setDirection(direction)
-        self.toggle_animation.start()
+        if checked:
+            self.reveal_animation.start()
+        else:
+            self.collapse_animation.start()
 
     def set_content_layout(self, layout):
         # Not sure if this is equivalent to self.contentArea.destroy()
@@ -62,12 +69,22 @@ class FoldableArea(QWidget):
     def set_animation(self, content_height):
         collapsed_height = self.sizeHint().height() - self.ui.content_area.maximumHeight()
 
-        for i in range(self.toggle_animation.animationCount() - 1):
-            spoiler_animation = self.toggle_animation.animationAt(i)
+        for i in range(self.reveal_animation.animationCount() - 1):
+            spoiler_animation = self.reveal_animation.animationAt(i)
             spoiler_animation.setDuration(self.animation_duration)
             spoiler_animation.setStartValue(collapsed_height)
             spoiler_animation.setEndValue(collapsed_height + content_height)
-        content_animation = self.toggle_animation.animationAt(self.toggle_animation.animationCount() - 1)
+        content_animation = self.reveal_animation.animationAt(self.reveal_animation.animationCount() - 1)
         content_animation.setDuration(self.animation_duration)
         content_animation.setStartValue(0)
         content_animation.setEndValue(content_height)
+
+        for i in range(self.collapse_animation.animationCount() - 1):
+            spoiler_animation = self.collapse_animation.animationAt(i)
+            spoiler_animation.setDuration(self.animation_duration)
+            spoiler_animation.setStartValue(collapsed_height + content_height)
+            spoiler_animation.setEndValue(collapsed_height)
+        content_animation = self.collapse_animation.animationAt(self.collapse_animation.animationCount() - 1)
+        content_animation.setDuration(self.animation_duration)
+        content_animation.setStartValue(content_height)
+        content_animation.setEndValue(0)

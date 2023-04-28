@@ -38,6 +38,7 @@ class PrefDock(QDockWidget):
 
     def setup_security_menu(self):
         self.password_edit.setEchoMode(QLineEdit.EchoMode.Password)
+        self.password_edit.returnPressed.connect(self.verify_password)
         layout = QGridLayout()
         layout.addWidget(self.password_label, 0, 0)
         layout.addWidget(self.password_edit, 0, 1)

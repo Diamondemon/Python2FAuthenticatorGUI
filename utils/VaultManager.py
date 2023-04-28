@@ -69,12 +69,9 @@ class VaultManager:
 
     @property
     def is_encryption_enabled(self):
-        print("pouf")
         if self.is_vault_loaded():
-            print("pif")
             return self._repo.is_encryption_enabled()
         elif self.is_vault_file_loaded():
-            print("paf")
             return self._vault_file.is_encrypted()
         else:
             return False
