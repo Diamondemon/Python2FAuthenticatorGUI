@@ -1,4 +1,4 @@
-from sys import argv
+from sys import argv, exit
 from PySide6.QtWidgets import QApplication
 from UI.UIWindow import UIWindow
 
@@ -7,5 +7,3 @@ if __name__ == '__main__':
     window = UIWindow()
     window.show()
     exit(app.exec())
-
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
