@@ -1,3 +1,5 @@
+from utils.Slots.PasswordSlot import PasswordSlot
+from utils.Slots.Slot import Slot
 from utils.Vault import Vault
 from utils.VaultFile import VaultFile
 from utils.VaultFileCredentials import VaultFileCredentials
@@ -51,10 +53,10 @@ class VaultManager:
         if (self._vault_file is not None) and not self._vault_file.is_encrypted():
             self.load_from(self._vault_file, None)
 
-    def is_vault_loaded(self):
+    def is_vault_loaded(self) -> bool:
         return self._repo is not None
 
-    def is_vault_file_loaded(self):
+    def is_vault_file_loaded(self) -> bool:
         return self._vault_file is not None
 
     @property
@@ -64,3 +66,46 @@ class VaultManager:
     @property
     def repo(self):
         return self._repo
+
+    @property
+    def is_encryption_enabled(self):
+        print("pouf")
+        if self.is_vault_loaded():
+            print("pif")
+            return self._repo.is_encryption_enabled()
+        elif self.is_vault_file_loaded():
+            print("paf")
+            return self._vault_file.is_encrypted()
+        else:
+            return False
+
+    @property
+    def is_locked(self):
+        return not self.is_vault_loaded()
+
+    def verify_password(self, password: str):
+        if self.is_vault_loaded():
+            slots = self._repo.get_credentials().slots
+            for slot in slots:
+                if type(slots[slot]) == PasswordSlot:
+                    pass_slot: PasswordSlot | Slot = slots[slot]
+                    try:
+                        pass_slot.derive_key(password)
+                        return True
+                    except ValueError:
+                        pass
+        elif self.is_vault_file_loaded():
+            slots = self._vault_file.header.slots
+            for slot in slots:
+                if type(slots[slot]) == PasswordSlot:
+                    pass_slot: PasswordSlot | Slot = slots[slot]
+                    try:
+                        pass_slot.derive_key(password)
+                        return True
+                    except ValueError:
+                        pass
+        return False
+
+    def change_credentials(self, creds: VaultFileCredentials | None):
+        self._repo = VaultRepository(self._repo.get_vault(), creds)
+        self.save()

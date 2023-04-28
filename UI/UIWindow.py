@@ -8,6 +8,7 @@ from UI.EntriesPage import EntriesPage
 from UI.EntryWidget import EntryWidget
 from UI.FirstUseWidget import FirstUseWidget
 from UI.NewAuthDialog import NewAuthDialog
+from UI.PrefDock import PrefDock
 from UI.UIMenuBar import UIMenuBar
 from utils.VaultEntry import VaultEntry
 
@@ -17,10 +18,12 @@ from utils.VaultFile import VaultFile
 from utils.VaultFileCredentials import VaultFileCredentials
 from utils.Slots.PasswordSlot import PasswordSlot
 from UI.AuthPage import AuthPage
+import utils.Slots as Slots
 
 
 class UIWindow(QMainWindow):
     refresh_signal = Signal(VaultEntry)
+    locked_signal = Signal(bool)
 
     def __init__(self):
         QMainWindow.__init__(self)
@@ -38,13 +41,23 @@ class UIWindow(QMainWindow):
         self.uiMenuBar.addFileAction(self.tr("Quitter"), self.quit_window, QKeySequence(self.tr("Ctrl+Q")))
         self.uiMenuBar.addAction(self.tr("Verrouiller"), QKeySequence(self.tr("Ctrl+L")), self.lock_vault)
         self.uiMenuBar.addAction(self.tr("Ajouter"), QKeySequence(self.tr("Ctrl+A")), self.add_entry)
+        self.uiMenuBar.addAction(self.tr("Préférences"), QKeySequence(self.tr("Ctrl+P")), self.open_preferences)
         self.setMenuBar(self.uiMenuBar)
 
         self.auth_page: AuthPage = AuthPage()
+        self.preferences_dock = PrefDock(self.tr("Préférences"), self, self.manager)
+        self.addDockWidget(Qt.RightDockWidgetArea, self.preferences_dock)
+        self.preferences_dock.hide()
+
+        self.preferences_dock.password_change_signal.connect(self.change_vault_creds)
+        self.preferences_dock.remove_password_signal.connect(self.remove_vault_creds)
+        self.locked_signal.connect(self.preferences_dock.toggle_security_menu)
+
         self.connect(self.auth_page.validateEntry, SIGNAL("clicked()"), self.decrypt_task)
 
         try:
             self.manager.load_vault_file()
+            self.preferences_dock.encryption_toggled()
             if self.manager.is_vault_loaded():
                 self.display_vault()
             else:
@@ -88,6 +101,23 @@ class UIWindow(QMainWindow):
             creds = dial.compute_credentials()
             self.manager.init_new(creds)
             self.display_vault()
+            self.preferences_dock.encryption_toggled()
+
+    @Slot()
+    def change_vault_creds(self):
+        dial = NewAuthDialog(self)
+        button = dial.exec()
+
+        if button == 1:
+            creds = dial.compute_credentials()
+            self.manager.change_credentials(creds)
+            self.preferences_dock.encryption_toggled()
+
+    @Slot()
+    def remove_vault_creds(self):
+        if self.manager.is_vault_loaded():
+            self.manager.change_credentials(None)
+            self.preferences_dock.encryption_toggled()
 
     @Slot()
     def add_entry(self):
@@ -128,17 +158,25 @@ class UIWindow(QMainWindow):
             self.manager.unlock(creds)
         self.display_vault()
 
+    @Slot()
+    def open_preferences(self):
+        if self.preferences_dock.isVisible():
+            self.preferences_dock.hide()
+        else:
+            self.preferences_dock.show()
+
     def display_vault(self):
         self.takeCentralWidget()
         entries_page = EntriesPage(self, self.manager.repo)
         self.refresh_connection = self.refresh_signal.connect(entries_page.add_entry)
         self.setCentralWidget(entries_page)
+        self.locked_signal.emit(False)
 
     @staticmethod
     def unlock_with_pass(vault_file: VaultFile, password: str) -> VaultFileCredentials:
         for slot in vault_file.header.slots:
             if type(vault_file.header.slots[slot]) == PasswordSlot:
-                pass_slot: PasswordSlot | Slot = vault_file.header.slots[slot]
+                pass_slot:  Slots.Slot| PasswordSlot = vault_file.header.slots[slot]
                 key = pass_slot.derive_key(password)
                 master_key = pass_slot.get_key(pass_slot.create_decrypt_cipher(key))
 
@@ -151,6 +189,7 @@ class UIWindow(QMainWindow):
             self.refresh_connection = None
             self.setCentralWidget(self.auth_page)
             self.manager.lock(True)
+            self.locked_signal.emit(True)
 
     @Slot()
     def quit_window(self):

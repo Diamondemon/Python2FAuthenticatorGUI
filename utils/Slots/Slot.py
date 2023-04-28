@@ -53,3 +53,6 @@ class Slot:
 
     def get_type(self):
         return None
+
+    def derive_key(self, password):
+        raise NotImplementedError

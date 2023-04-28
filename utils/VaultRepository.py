@@ -11,7 +11,7 @@ class VaultRepository:
         self._vault = vault
         self._creds = creds
 
-    def is_encryption_enabled(self):
+    def is_encryption_enabled(self) -> bool:
         return self._creds is not None
 
     def save(self):
