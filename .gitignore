@@ -76,3 +76,8 @@ CMakeLists.txt.user*
 *.dll
 *.exe
 
+/dist/
+/Executables/
+/main.build/
+/main.dist/
+/build/

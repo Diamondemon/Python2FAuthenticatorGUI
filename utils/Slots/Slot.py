@@ -55,4 +55,4 @@ class Slot:
         return None
 
     def derive_key(self, password):
-        raise NotImplementedError
+        raise NotImplementedError("Cannot derive key from simple Slot.")

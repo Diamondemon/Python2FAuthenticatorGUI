@@ -23,7 +23,7 @@ class OtpInfo:
             raise ValueError("Unrecognized otp type, not Totp!")
 
     def to_json(self):
-        raise NotImplementedError
+        return {"secret": self.secret, "algo": self.algorithm, "digits": self.digits}
 
     def to_url(self):
         return f"digits={self.digits}&algorithm={self.algorithm}&secret={self.secret}"

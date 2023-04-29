@@ -20,7 +20,7 @@ class AddDialog(QDialog):
         self.ui.secret_edit.setEchoMode(QLineEdit.EchoMode.PasswordEchoOnEdit)
         self.ui.group_combo.insertItems(-1, [QCoreApplication.translate("AddDialog", u"Aucun groupe", None)])
         self.ui.hash_combo.insertItems(-1, ["SHA1", "SHA256", "SHA512"])
-        self.ui.type_combo.insertItems(-1, ["TOTP", "HOTP"])
+        self.ui.type_combo.insertItems(-1, ["TOTP"])  # "HOTP"
         self.ui.period_edit.setValidator(QIntValidator(bottom=0))
         self.ui.use_edit.setValidator(QIntValidator(bottom=0))
         self.ui.digits_edit.setValidator(QIntValidator(bottom=0))
