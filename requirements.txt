@@ -1,0 +1,11 @@
+numpy==1.24.3
+opencv-python==4.7.0.72
+Pillow==9.5.0
+pycryptodome==3.17
+pypng==0.20220715.0
+PySide6==6.5.0
+PySide6-Addons==6.5.0
+PySide6-Essentials==6.5.0
+qrcode==7.4.2
+shiboken6==6.5.0
+typing_extensions==4.5.0
