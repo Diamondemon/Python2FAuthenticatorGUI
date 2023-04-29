@@ -1,6 +1,6 @@
 PHONY: ui conda_setup pip_setup
 ifndef CONDA_PREFIX
-CONDA_PREFIX = ~/.conda/envs/2fa_env
+CONDA_PREFIX = $(HOME)/.conda/envs/2fa_env
 endif
 
 
@@ -13,7 +13,7 @@ ui_%.py: $(UIDIR)/%.ui
 	$(CONDA_PREFIX)/bin/pyside6-uic $< -o $(UIDIR)/$@
 
 conda_setup:
-    conda env create --file environment.yml
+	conda env create --file environment.yml
 
 pip_setup:
-    pip install -r requirements.txt
+	pip install -r requirements.txt
