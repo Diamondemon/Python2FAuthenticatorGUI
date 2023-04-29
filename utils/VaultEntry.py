@@ -34,26 +34,15 @@ class VaultEntry:
                 issuer_name = [""]+issuer_name
             issuer, name = issuer_name
             query = parse_qs(parsing.query)
-            parsed_query = {}
-            if query["digits"]:
-                parsed_query["digits"] = int(query["digits"][0])
-            else:
-                parsed_query["digits"] = 6
-
-            if query["algorithm"]:
-                parsed_query["algorithm"] = query["algorithm"][0]
-            else:
-                parsed_query["algorithm"] = "SHA1"
+            parsed_query = {"digits": int(query.get("digits", ["6"])[0]),
+                            "algorithm": query.get("algorithm", ["SHA1"])[0]}
 
             if query["secret"]:
                 parsed_query["secret"] = query["secret"][0]
             else:
                 raise ValueError("No secret provided!")
 
-            if query["period"]:
-                parsed_query["period"] = int(query["period"][0])
-            else:
-                raise ValueError("No period provided!")
+            parsed_query["period"] = int(query.get("period", ["30"])[0])
 
             info = TotpInfo(parsed_query["secret"], parsed_query["algorithm"], parsed_query["digits"],
                             parsed_query["period"])
