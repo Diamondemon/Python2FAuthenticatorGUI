@@ -1,4 +1,4 @@
-name: cekwa
+name: 2fa_env
 channels:
   - conda-forge
   - defaults
