@@ -17,3 +17,6 @@ conda_setup:
 
 pip_setup:
 	pip install -r requirements.txt
+
+run: ui
+	python main.py
