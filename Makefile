@@ -1,4 +1,4 @@
-PHONY: ui conda_setup pip_setup
+.PHONY: ui conda_setup conda_rel_setup pip_setup
 ifndef CONDA_PREFIX
 CONDA_PREFIX = $(HOME)/.conda/envs/2fa_env
 endif

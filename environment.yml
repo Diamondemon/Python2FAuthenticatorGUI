@@ -98,4 +98,4 @@ dependencies:
       - qrcode==7.4.2
       - shiboken6==6.5.0
       - typing-extensions==4.5.0
-prefix: /home/julien/.conda/envs/cekwa
+prefix: /home/julien/.conda/envs/2fa_env
