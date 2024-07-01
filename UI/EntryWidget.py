@@ -12,6 +12,9 @@ from utils.VaultEntry import VaultEntry
 
 
 class EntryWidget(QWidget):
+    """
+    List element displaying a TOTP entry
+    """
     delete_signal = Signal(QWidget)
 
     def __init__(self, master, entry: VaultEntry):
@@ -20,7 +23,7 @@ class EntryWidget(QWidget):
         self.ui.setupUi(self)
         self.ui.host_label.setTextFormat(Qt.TextFormat.MarkdownText)
         self.setFixedHeight(120)
-        self.ui.pushButton.connect(SIGNAL("clicked()"), self.edit_entry)
+        self.ui.pushButton.clicked.connect(self.edit_entry)
         self.setup_actions()
         self.setContextMenuPolicy(Qt.ContextMenuPolicy.ActionsContextMenu)
 
@@ -32,6 +35,10 @@ class EntryWidget(QWidget):
         self.schedule_timers()
 
     def setup_actions(self):
+        """
+        Sets up possible interactions with the widget
+        :return: None
+        """
         icon = QIcon()
         icon_theme_name = u"document-send"
         if QIcon.hasThemeIcon(icon_theme_name):
@@ -56,11 +63,12 @@ class EntryWidget(QWidget):
 
     @Slot()
     def launch_delete(self):
-        button = QMessageBox(QMessageBox.Icon.Warning, self.tr("Supprimer l'entrée"),
-                    self.tr("Cette action est irreversible, êtes-vous sûr?"),
-                    QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
-                    self
-                 ).exec()
+        button = QMessageBox(
+            QMessageBox.Icon.Warning, self.tr("Supprimer l'entrée"),
+            self.tr("Cette action est irreversible, êtes-vous sûr(e)?"),
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.Cancel,
+            self
+        ).exec()
 
         if button == QMessageBox.StandardButton.Yes:
             self.delete_signal.emit(self)

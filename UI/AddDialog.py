@@ -1,6 +1,6 @@
 from PySide6.QtCore import QCoreApplication, Slot, SIGNAL
 from PySide6.QtGui import QIntValidator
-from PySide6.QtWidgets import QDialog, QLineEdit
+from PySide6.QtWidgets import QDialog, QLineEdit, QWidget
 
 from UI.QrDialog import QrDialog
 from UI.UrlDialog import UrlDialog
@@ -11,21 +11,31 @@ from utils.VaultEntry import VaultEntry
 
 
 class AddDialog(QDialog):
-    """Dialog to add or edit an entry"""
+    """
+    Dialog to add or edit an entry.
 
-    def __init__(self, master, entry: VaultEntry | None = None):
+    Provides fields to input all the information needed to create a VaultEntry and an option to load an entry
+    from a qr code or an url.
+    """
+
+    def __init__(self, master: QWidget = None, entry: VaultEntry | None = None):
+        """
+        Initializes the dialog.
+        :param master: master widget
+        :param entry:  entry to edit, if any
+        """
         super().__init__(master)
         self.ui = Ui_AddDialog()
         self.ui.setupUi(self)
         self.ui.secret_edit.setEchoMode(QLineEdit.EchoMode.PasswordEchoOnEdit)
-        self.ui.group_combo.insertItems(-1, [QCoreApplication.translate("AddDialog", u"Aucun groupe", None)])
+        self.ui.group_combo.insertItems(-1, [QCoreApplication.translate(b"AddDialog", b"Aucun groupe", None)])
         self.ui.hash_combo.insertItems(-1, ["SHA1", "SHA256", "SHA512"])
         self.ui.type_combo.insertItems(-1, ["TOTP"])  # "HOTP"
         self.ui.period_edit.setValidator(QIntValidator(bottom=0))
         self.ui.use_edit.setValidator(QIntValidator(bottom=0))
         self.ui.digits_edit.setValidator(QIntValidator(bottom=0))
-        self.ui.qr_button.connect(SIGNAL("clicked()"), self.display_qr)
-        self.ui.url_button.connect(SIGNAL("clicked()"), self.display_url)
+        self.ui.qr_button.connect(SIGNAL(b"clicked()"), self.display_qr)
+        self.ui.url_button.connect(SIGNAL(b"clicked()"), self.display_url)
 
         self.entry = entry
 
